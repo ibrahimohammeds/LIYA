@@ -72,7 +72,58 @@ function addMessage(text,who){
  if(who==='bot'){const lab=document.createElement('span');lab.className='label';lab.textContent='LIYA';el.appendChild(lab)}
  el.appendChild(document.createTextNode(text));messages.appendChild(el);
 }
-function send(text){text=text.trim();if(!text)return;welcome.style.display='none';addMessage(text,'user');input.value='';input.style.height='auto';setTimeout(()=>{addMessage(replyFor(text),'bot');window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});},250);}
+async function send(text) {
+  text = text.trim();
+  if (!text) return;
+
+  welcome.style.display = 'none';
+  addMessage(text, 'user');
+  input.value = '';
+  input.style.height = 'auto';
+
+  const loading = document.createElement('div');
+  loading.className = 'msg bot';
+  loading.textContent = 'LIYA ভাবছে...';
+  messages.appendChild(loading);
+  messages.scrollTop = messages.scrollHeight;
+
+  try {
+    const response = await fetch(
+      'https://liya-ai.thismohammed27.workers.dev/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          message: text
+        })
+      }
+    );
+
+    const data = await response.json();
+    loading.remove();
+
+    if (!response.ok) {
+      throw new Error(
+        data.error || 'AI response failed'
+      );
+    }
+
+    addMessage(data.reply, 'bot');
+
+  } catch (error) {
+    loading.remove();
+
+    addMessage(
+      'দুঃখিত, এখন AI-এর সঙ্গে সংযোগ হচ্ছে না। একটু পরে আবার চেষ্টা করো।',
+      'bot'
+    );
+
+    console.error('LIYA AI error:', error);
+  }
+}
+
 form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});
 input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'});
 document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.prompt)));
