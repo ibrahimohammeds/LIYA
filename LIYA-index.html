@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="LIYA — your personal AI assistant">
+  <title>LIYA — Personal AI Assistant</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1120;--panel:#111b2e;--panel2:#1b2940;--text:#f8fafc;--muted:#a8b4c8;--accent:#8b5cf6;--border:#26364f}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#18213c 0%,var(--bg) 55%);color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+    .app{max-width:760px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+    header{display:flex;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid var(--border)}.logo{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#a78bfa,#6d5ae6);display:grid;place-items:center;font-size:24px;font-weight:800;box-shadow:0 8px 24px #6d5ae644}h1{font-size:21px;margin:0;letter-spacing:.5px}.subtitle{font-size:12px;color:#c4b5fd;margin-top:3px}
+    main{flex:1;display:flex;flex-direction:column;padding:22px 0 14px;gap:16px}.welcome{text-align:center;padding:26px 12px 12px}.orb{width:76px;height:76px;border-radius:28px;background:#251c4b;border:1px solid #5941a8;margin:0 auto 15px;display:grid;place-items:center;font-size:34px}.welcome h2{margin:0 0 8px;font-size:24px}.welcome p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}
+    .quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}.quick button{background:#17243a;color:#dce5f4;border:1px solid #34435d;border-radius:999px;padding:9px 12px;font-size:12px}
+    .messages{display:flex;flex-direction:column;gap:12px}.msg{max-width:90%;padding:12px 14px;border-radius:18px;line-height:1.5;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.user{align-self:flex-end;background:linear-gradient(135deg,#8067ef,#644bd2);border-bottom-right-radius:6px}.bot{align-self:flex-start;background:var(--panel2);border:1px solid #2d3b54;border-bottom-left-radius:6px}.label{display:block;font-size:10px;color:#c4b5fd;margin-bottom:4px;font-weight:700;letter-spacing:.3px}
+    .composer{position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 22%)}form{display:flex;gap:8px;align-items:flex-end;background:#111b2e;border:1px solid #35445e;border-radius:22px;padding:8px;box-shadow:0 12px 35px #0003}textarea{flex:1;resize:none;max-height:130px;min-height:42px;background:transparent;color:var(--text);border:0;outline:0;padding:11px 8px;font:inherit;font-size:14px}textarea::placeholder{color:#8b99af}.send{width:44px;height:44px;flex-shrink:0;border:0;border-radius:16px;background:var(--accent);color:white;font-size:20px;cursor:pointer}.send:disabled{opacity:.55;cursor:not-allowed}.note{text-align:center;color:#8290a6;font-size:10px;line-height:1.5;margin:9px 8px 0}button{cursor:pointer}button:focus-visible,textarea:focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}.error{color:#fecaca}
+    @media(min-width:600px){.app{padding-left:24px;padding-right:24px}.welcome{padding-top:40px}.msg{font-size:15px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header><div class="logo" aria-hidden="true">✦</div><div><h1>LIYA</h1><div class="subtitle">Your Personal AI Assistant</div></div></header>
+  <main>
+    <section class="welcome" id="welcome"><div class="orb">✧</div><h2>হ্যালো! আমি LIYA।</h2><p>তোমাকে কীভাবে সাহায্য করতে পারি?<br>How can I help you today?</p>
+      <div class="quick">
+        <button type="button" data-prompt="আজকের জন্য একটি সহজ পরিকল্পনা তৈরি করো।">📅 Daily plan</button>
+        <button type="button" data-prompt="আমাকে ইংরেজি শেখার কিছু টিপস দাও।">📚 Learn English</button>
+        <button type="button" data-prompt="Give me three ideas to stay productive.">✨ Productivity</button>
+      </div>
+    </section>
+    <section class="messages" id="messages" aria-live="polite"></section>
+  </main>
+  <div class="composer"><form id="chatForm"><textarea id="messageInput" rows="1" placeholder="Message LIYA... / এখানে লিখো" aria-label="Message LIYA"></textarea><button class="send" id="sendButton" aria-label="Send message" type="submit">↑</button></form><p class="note">LIYA AI Assistant · Powered by AI</p></div>
+</div>
+<script>
+  // Keep this URL identical to your deployed Cloudflare Worker URL.
+  const API_URL = 'https://liya-ai.thismohammed27.workers.dev/';
+  const form = document.getElementById('chatForm');
+  const input = document.getElementById('messageInput');
+  const messages = document.getElementById('messages');
+  const welcome = document.getElementById('welcome');
+  const sendButton = document.getElementById('sendButton');
+
+  function addMessage(text, who, extraClass = '') {
+    const el = document.createElement('div');
+    el.className = `msg ${who} ${extraClass}`.trim();
+    if (who === 'bot') {
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = 'LIYA';
+      el.appendChild(label);
+    }
+    el.appendChild(document.createTextNode(String(text ?? '')));
+    messages.appendChild(el);
+    el.scrollIntoView({behavior: 'smooth', block: 'end'});
+    return el;
+  }
+
+  async function send(text) {
+    text = String(text || '').trim();
+    if (!text || sendButton.disabled) return;
+
+    welcome.style.display = 'none';
+    addMessage(text, 'user');
+    input.value = '';
+    input.style.height = 'auto';
+    sendButton.disabled = true;
+
+    const loading = addMessage('LIYA ভাবছে...', 'bot');
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({message: text})
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.error || `সার্ভার সমস্যা (${response.status})`);
+      }
+      if (typeof data.reply !== 'string' || !data.reply.trim()) {
+        throw new Error('AI থেকে উত্তর পাওয়া যায়নি। Worker-এর AI binding ও logs পরীক্ষা করো।');
+      }
+      loading.remove();
+      addMessage(data.reply, 'bot');
+    } catch (error) {
+      loading.remove();
+      console.error('LIYA AI connection error:', error);
+      addMessage('দুঃখিত, LIYA এখন AI সার্ভারের সঙ্গে সংযোগ করতে পারছে না।\n\nসম্ভাব্য কারণ: Worker deploy হয়নি, AI binding/model সমস্যা, অথবা CORS error। Cloudflare Worker-এর Logs দেখো।', 'bot', 'error');
+    } finally {
+      sendButton.disabled = false;
+      input.focus();
+    }
+  }
+
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    send(input.value);
+  });
+  input.addEventListener('input', () => {
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 130) + 'px';
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  document.querySelectorAll('[data-prompt]').forEach(button => {
+    button.addEventListener('click', () => send(button.dataset.prompt));
+  });
+</script>
+</body>
+</html>
