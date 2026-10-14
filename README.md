@@ -3,7 +3,7 @@
 This is a free, static mobile-friendly web app prototype. It can be added to an iPhone Home Screen after hosting it over HTTPS.
 
 ## Files
-- `index.html` — app UI and sample demo replies
+- `index.html` — app UI and sample replies
 - `manifest.json` — web app metadata
 - `sw.js` — basic offline caching
 
