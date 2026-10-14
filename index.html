@@ -3,11 +3,10 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#11111b">
-  <meta name="description" content="LIYA AI — তোমার ব্যক্তিগত AI assistant। বাংলায় ও ইংরেজিতে কথা বলো।">
-  <title>LIYA AI — Your Personal AI Assistant</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#171724">
+  <meta name="description" content="LIYA AI — Your personal AI assistant">
+  <title>LIYA AI — Personal AI Assistant</title>
   <link rel="manifest" href="/LIYA/manifest.json">
   <link rel="icon" href="/LIYA/icons/liya-192.png" type="image/png">
 
@@ -15,635 +14,746 @@
     :root {
       color-scheme: dark;
       --bg: #11111b;
-      --panel: #191927;
-      --surface: #242438;
-      --border: #35354c;
-      --text: #f5f3ff;
-      --muted: #aaa8c1;
-      --purple: #8b5cf6;
-      --pink: #ec4899;
+      --panel: #1b1b2b;
+      --panel2: #242438;
+      --text: #f5f5fa;
+      --muted: #a9a9c0;
+      --accent: #a78bfa;
+      --border: #35354b;
+      --danger: #ff9b9b;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       margin: 0;
       min-height: 100vh;
-      min-height: 100dvh;
       background: var(--bg);
       color: var(--text);
-      font-family: Arial, "Noto Sans Bengali", sans-serif;
+      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
     }
 
-    button, textarea {
-      font: inherit;
+    button, input, select, textarea { font: inherit; }
+
+    button, select {
+      cursor: pointer;
     }
 
-    button {
-      -webkit-tap-highlight-color: transparent;
+    button:focus-visible, input:focus-visible,
+    select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .app {
-      width: 100%;
-      max-width: 900px;
-      height: 100vh;
-      height: 100dvh;
+      width: min(900px, 100%);
+      min-height: 100vh;
       margin: auto;
       display: flex;
       flex-direction: column;
-      background: var(--panel);
     }
 
     header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      padding: 16px;
+      background: #171724f5;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+    }
+
+    .topline {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 12px;
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--border);
     }
 
-    .logo {
-      width: 46px;
-      height: 46px;
-      flex-shrink: 0;
-      display: grid;
-      place-items: center;
-      border-radius: 15px;
-      background: linear-gradient(135deg, var(--purple), var(--pink));
-      font-size: 25px;
-    }
-
-    .brand h1 {
-      margin: 0;
-      font-size: 22px;
-      letter-spacing: .3px;
-    }
-
-    .brand p {
-      margin: 5px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-    }
-
-    .header-actions {
-      margin-left: auto;
+    .brand {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .connection {
-      color: #c4b5fd;
-      font-size: 12px;
-      white-space: nowrap;
+    .logo {
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+      color: white;
+      font-size: 23px;
+      font-weight: 800;
     }
 
-    .clear-btn {
-      padding: 8px 10px;
+    h1 { margin: 0; font-size: 21px; }
+    .subtitle { color: var(--muted); font-size: 12px; margin-top: 3px; }
+
+    .button {
+      padding: 10px 13px;
+      color: var(--text);
+      background: var(--panel2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .button.primary {
+      background: var(--accent);
+      color: #171324;
+      border-color: transparent;
+      font-weight: 700;
+    }
+
+    .settings {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .setting label {
+      display: block;
       color: var(--muted);
+      font-size: 12px;
+      margin: 0 0 6px 2px;
+    }
+
+    .setting select {
+      width: 100%;
+      min-width: 0;
+      padding: 10px;
+      color: var(--text);
+      background: var(--panel);
       border: 1px solid var(--border);
       border-radius: 10px;
-      background: transparent;
-      cursor: pointer;
-      font-size: 12px;
     }
 
-    .clear-btn:hover {
-      color: white;
-      background: var(--surface);
-    }
-
-    #messages {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
+    .switch-row {
       display: flex;
-      flex-direction: column;
-      gap: 17px;
-      padding: 24px 20px;
-      scroll-behavior: smooth;
+      align-items: center;
+      gap: 8px;
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--muted);
     }
 
-    .welcome {
-      width: 100%;
-      max-width: 480px;
-      margin: auto;
-      padding: 25px 12px;
+    .switch-row input { accent-color: var(--accent); }
+
+    #status {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      min-height: 18px;
+    }
+
+    main {
+      flex: 1;
+      padding: 22px 16px 140px;
+    }
+
+    #welcome {
+      padding: 38px 10px;
       text-align: center;
     }
 
-    .welcome-icon {
-      font-size: 55px;
-    }
-
-    .welcome h2 {
-      margin: 16px 0 10px;
-      font-size: 28px;
-    }
-
-    .welcome p {
-      color: var(--muted);
-      line-height: 1.8;
-      font-size: 14px;
-    }
+    #welcome .big { font-size: 45px; }
+    #welcome h2 { margin-bottom: 8px; }
+    #welcome p { color: var(--muted); line-height: 1.7; }
 
     .suggestions {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
       gap: 8px;
-      margin-top: 22px;
+      margin-top: 20px;
     }
 
-    .suggestion {
-      padding: 10px 13px;
-      border: 1px solid var(--border);
+    .suggestions button {
+      padding: 10px 12px;
       border-radius: 20px;
-      color: #ded8ff;
-      background: #222235;
-      cursor: pointer;
-      font-size: 12px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
     }
 
-    .suggestion:hover {
-      border-color: var(--purple);
+    .message {
+      display: flex;
+      gap: 10px;
+      margin: 20px 0;
+      align-items: flex-start;
     }
 
-    .msg {
-      max-width: 85%;
-      padding: 13px 16px;
-      border-radius: 17px;
-      font-size: 15px;
-      line-height: 1.8;
+    .avatar {
+      flex: 0 0 34px;
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: var(--panel2);
+      border-radius: 11px;
+      font-size: 17px;
+    }
+
+    .message.user .avatar { background: #3b3158; }
+
+    .content {
+      min-width: 0;
+      max-width: calc(100% - 44px);
+      line-height: 1.75;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
 
-    .user {
-      align-self: flex-end;
-      background: #7051d8;
-      border-bottom-right-radius: 5px;
-    }
-
-    .bot {
-      align-self: flex-start;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 5px;
-    }
-
-    .bot.error {
-      color: #fecaca;
-      border-color: #7f303f;
-    }
-
-    .bot.pending {
-      color: #c4b5fd;
-    }
-
-    .message-label {
+    .message .who {
+      font-size: 12px;
+      color: var(--muted);
       margin-bottom: 5px;
-      color: #c4b5fd;
-      font-size: 11px;
-      font-weight: bold;
+    }
+
+    .message.error .content { color: var(--danger); }
+
+    .message-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 8px;
+    }
+
+    .message-actions button {
+      padding: 5px 9px;
+      color: var(--muted);
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .composer-wrap {
+      position: fixed;
+      z-index: 4;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 12px 16px max(15px, env(safe-area-inset-bottom));
+      background: linear-gradient(transparent, var(--bg) 18%);
     }
 
     .composer {
-      padding: 14px 16px max(12px, env(safe-area-inset-bottom));
-      border-top: 1px solid var(--border);
-      background: var(--panel);
-    }
-
-    .input-row {
+      width: min(868px, 100%);
+      margin: auto;
+      padding: 10px;
       display: flex;
       align-items: flex-end;
-      gap: 10px;
-      padding: 8px;
-      border: 1px solid #41415b;
-      border-radius: 19px;
-      background: #222233;
+      gap: 8px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 8px 30px #0004;
     }
 
-    .input-row:focus-within {
-      border-color: var(--purple);
-    }
-
-    #input {
+    #messageInput {
       flex: 1;
-      width: 100%;
       min-width: 0;
-      min-height: 44px;
       max-height: 150px;
-      padding: 12px 10px;
-      resize: none;
+      resize: vertical;
+      padding: 10px 4px;
+      background: transparent;
+      color: var(--text);
       border: 0;
       outline: none;
-      background: transparent;
-      color: white;
-      line-height: 1.5;
-      font-size: 15px;
     }
 
-    #input::placeholder {
-      color: #9694ad;
+    #messageInput:focus-visible { outline: none; }
+
+    .icon-button {
+      flex: 0 0 auto;
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: var(--panel2);
+      color: var(--text);
+      border: 1px solid var(--border);
+      font-size: 18px;
     }
 
-    #sendBtn {
-      width: 45px;
-      height: 45px;
-      flex-shrink: 0;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg, var(--purple), #7041dc);
-      color: white;
-      font-size: 22px;
-      cursor: pointer;
+    .icon-button:disabled { opacity: .5; cursor: not-allowed; }
+
+    #micButton.listening {
+      background: #a73750;
+      border-color: #ff7b95;
     }
 
-    #sendBtn:disabled {
-      opacity: .5;
-      cursor: wait;
-    }
-
-    .footer-note {
-      margin: 9px 0 0;
+    .fineprint {
+      width: min(868px, 100%);
+      margin: 7px auto 0;
+      color: var(--muted);
       text-align: center;
-      color: #82819b;
       font-size: 11px;
     }
 
-    .typing-dots {
-      display: inline-flex;
-      gap: 4px;
-      margin-left: 4px;
-    }
-
-    .typing-dots span {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #c4b5fd;
-      animation: pulse 1s infinite alternate;
-    }
-
-    .typing-dots span:nth-child(2) {
-      animation-delay: .2s;
-    }
-
-    .typing-dots span:nth-child(3) {
-      animation-delay: .4s;
-    }
-
-    @keyframes pulse {
-      from { opacity: .3; transform: translateY(0); }
-      to { opacity: 1; transform: translateY(-3px); }
-    }
-
-    @media (max-width: 520px) {
-      header {
-        padding: 13px 12px;
-        gap: 9px;
-      }
-
-      .logo {
-        width: 40px;
-        height: 40px;
-        font-size: 22px;
-      }
-
-      .brand h1 {
-        font-size: 19px;
-      }
-
-      .brand p {
-        font-size: 11px;
-      }
-
-      .header-actions {
-        gap: 6px;
-      }
-
-      .connection {
-        display: none;
-      }
-
-      .clear-btn {
-        padding: 8px;
-      }
-
-      #messages {
-        padding: 18px 12px;
-      }
-
-      .msg {
-        max-width: 93%;
-        font-size: 14px;
-      }
-
-      .welcome h2 {
-        font-size: 24px;
-      }
-
-      .composer {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation: none !important;
-      }
+    @media (max-width: 560px) {
+      header { padding: 12px; }
+      .settings { grid-template-columns: 1fr 1fr; }
+      .setting.voice-setting { grid-column: 1 / -1; }
+      h1 { font-size: 19px; }
+      main { padding: 15px 12px 135px; }
+      .composer-wrap { padding-left: 9px; padding-right: 9px; }
+      .button { padding: 9px 10px; }
     }
   </style>
 </head>
 
 <body>
-  <main class="app">
-    <header>
-      <div class="logo" aria-hidden="true">💜</div>
-
+<div class="app">
+  <header>
+    <div class="topline">
       <div class="brand">
-        <h1>LIYA AI</h1>
-        <p>Your Personal AI Assistant</p>
-      </div>
-
-      <div class="header-actions">
-        <span class="connection" id="connection">AI Assistant</span>
-        <button class="clear-btn" id="clearBtn" type="button">
-          New chat
-        </button>
-      </div>
-    </header>
-
-    <section id="messages" aria-live="polite" aria-label="Chat messages">
-      <div class="welcome" id="welcome">
-        <div class="welcome-icon" aria-hidden="true">✨</div>
-        <h2>হ্যালো! আমি LIYA</h2>
-        <p>
-          তোমার ব্যক্তিগত AI assistant। আমাকে বাংলায় বা ইংরেজিতে
-          যেকোনো প্রশ্ন করতে পারো।
-        </p>
-
-        <div class="suggestions">
-          <button class="suggestion" type="button"
-            data-prompt="তোমার পরিচয় দাও।">
-            👋 তোমার পরিচয় দাও
-          </button>
-
-          <button class="suggestion" type="button"
-            data-prompt="9 + 9 কত?">
-            🧮 9 + 9 কত?
-          </button>
-
-          <button class="suggestion" type="button"
-            data-prompt="আমাকে একটি নতুন ব্যবসার আইডিয়া দাও।">
-            💡 ব্যবসার আইডিয়া
-          </button>
+        <div class="logo" aria-hidden="true">L</div>
+        <div>
+          <h1>LIYA AI</h1>
+          <div class="subtitle">Your personal AI assistant</div>
         </div>
       </div>
-    </section>
+      <button class="button" id="newChatButton" type="button">
+        ＋ New chat
+      </button>
+    </div>
 
-    <form class="composer" id="chatForm">
-      <div class="input-row">
-        <textarea
-          id="input"
-          rows="1"
-          maxlength="4000"
-          placeholder="LIYA-কে কিছু জিজ্ঞেস করো..."
-          aria-label="তোমার মেসেজ"
-          autocomplete="off"
-          required
-        ></textarea>
-
-        <button id="sendBtn" type="submit" aria-label="Send message">
-          ➤
-        </button>
+    <div class="settings">
+      <div class="setting">
+        <label for="inputLanguage">Microphone language</label>
+        <select id="inputLanguage">
+          <option value="bn-BD">বাংলা</option>
+          <option value="en-US">English (US)</option>
+          <option value="en-GB">English (UK)</option>
+          <option value="hi-IN">हिन्दी</option>
+        </select>
       </div>
 
-      <p class="footer-note">
-        LIYA AI ভুল করতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করে নাও।
-      </p>
-    </form>
+      <div class="setting">
+        <label for="replyLanguage">Voice reply language</label>
+        <select id="replyLanguage">
+          <option value="auto">Auto detect</option>
+          <option value="bn-BD">বাংলা</option>
+          <option value="en-US">English</option>
+          <option value="hi-IN">हिन्दी</option>
+        </select>
+      </div>
+
+      <div class="setting voice-setting">
+        <label for="voiceSelect">Choose voice</label>
+        <select id="voiceSelect">
+          <option value="">Browser default voice</option>
+        </select>
+      </div>
+    </div>
+
+    <label class="switch-row">
+      <input type="checkbox" id="voiceReply" checked>
+      <span>Voice Reply — উত্তর পড়ে শোনাও</span>
+    </label>
+
+    <div id="status" role="status" aria-live="polite">
+      Ready. LIYA-কে কিছু জিজ্ঞেস করো।
+    </div>
+  </header>
+
+  <main id="chat" aria-live="polite">
+    <section id="welcome">
+      <div class="big" aria-hidden="true">✦</div>
+      <h2>হ্যালো! আমি LIYA ❤️</h2>
+      <p>তোমার প্রশ্ন লিখো অথবা মাইক্রোফোন বাটনে চাপ দিয়ে কথা বলো।<br>
+      আমি তোমার প্রশ্নের উত্তর দেওয়ার চেষ্টা করব।</p>
+      <div class="suggestions">
+        <button type="button" data-prompt="তোমার পরিচয় দাও">তোমার পরিচয় দাও</button>
+        <button type="button" data-prompt="Python কী? সহজভাবে বুঝিয়ে বলো।">Python শেখাও</button>
+        <button type="button" data-prompt="২ + ২ কত? ব্যাখ্যা করো।">গণিত সমাধান</button>
+        <button type="button" data-prompt="আমার জন্য একটি সুন্দর দিনের পরিকল্পনা তৈরি করো।">পরিকল্পনা তৈরি</button>
+      </div>
+    </section>
   </main>
 
-  <script>
-    "use strict";
+  <div class="composer-wrap">
+    <form class="composer" id="chatForm">
+      <button class="icon-button" id="micButton" type="button"
+        aria-label="Speak to LIYA" title="Speak to LIYA">🎙️</button>
 
-    // তোমার Cloudflare Worker API
-    const API_URL = "https://liya-ai.thismohammed27.workers.dev/";
+      <textarea id="messageInput" rows="1" maxlength="4000"
+        placeholder="LIYA-কে কিছু জিজ্ঞেস করো..."
+        aria-label="Your message"></textarea>
 
-    const messagesEl = document.getElementById("messages");
-    const welcomeEl = document.getElementById("welcome");
-    const form = document.getElementById("chatForm");
-    const input = document.getElementById("input");
-    const sendBtn = document.getElementById("sendBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const connectionEl = document.getElementById("connection");
+      <button class="icon-button" id="stopVoiceButton" type="button"
+        title="Stop voice" aria-label="Stop voice">⏹</button>
 
-    let isSending = false;
-    let requestController = null;
+      <button class="icon-button" id="sendButton" type="submit"
+        aria-label="Send message" title="Send message">➤</button>
+    </form>
+    <div class="fineprint">
+      AI-এর উত্তর ভুল হতে পারে। গুরুত্বপূর্ণ তথ্য যাচাই করে নাও।
+    </div>
+  </div>
+</div>
 
-    function scrollToBottom() {
-      messagesEl.scrollTop = messagesEl.scrollHeight;
-    }
+<script>
+"use strict";
 
-    function addMessage(text, role, extraClass = "") {
-      const div = document.createElement("div");
-      div.className = `msg ${role} ${extraClass}`.trim();
+const API_URL = "https://liya-ai.thismohammed27.workers.dev/";
 
-      if (role === "bot") {
-        const label = document.createElement("div");
-        label.className = "message-label";
-        label.textContent = "LIYA";
-        div.appendChild(label);
-      }
+const chat = document.getElementById("chat");
+const welcome = document.getElementById("welcome");
+const form = document.getElementById("chatForm");
+const input = document.getElementById("messageInput");
+const sendButton = document.getElementById("sendButton");
+const micButton = document.getElementById("micButton");
+const stopVoiceButton = document.getElementById("stopVoiceButton");
+const statusBox = document.getElementById("status");
+const inputLanguage = document.getElementById("inputLanguage");
+const replyLanguage = document.getElementById("replyLanguage");
+const voiceSelect = document.getElementById("voiceSelect");
+const voiceReply = document.getElementById("voiceReply");
+const newChatButton = document.getElementById("newChatButton");
 
-      const content = document.createElement("div");
-      content.textContent = text;
-      div.appendChild(content);
+let recognition = null;
+let listening = false;
+let currentController = null;
+let availableVoices = [];
 
-      messagesEl.appendChild(div);
-      scrollToBottom();
+function setStatus(message) {
+  statusBox.textContent = message;
+}
 
-      return { element: div, content };
-    }
+function addMessage(role, text, isError = false) {
+  welcome.hidden = true;
 
-    function addTypingIndicator() {
-      const div = document.createElement("div");
-      div.className = "msg bot pending";
-      div.setAttribute("role", "status");
-      div.setAttribute("aria-label", "LIYA is thinking");
+  const row = document.createElement("article");
+  row.className = "message " + role + (isError ? " error" : "");
 
-      const label = document.createElement("div");
-      label.className = "message-label";
-      label.textContent = "LIYA";
+  const avatar = document.createElement("div");
+  avatar.className = "avatar";
+  avatar.textContent = role === "user" ? "👤" : "✦";
+  avatar.setAttribute("aria-hidden", "true");
 
-      const content = document.createElement("div");
-      content.append("LIYA ভাবছে");
+  const body = document.createElement("div");
+  body.className = "content";
 
-      const dots = document.createElement("span");
-      dots.className = "typing-dots";
+  const who = document.createElement("div");
+  who.className = "who";
+  who.textContent = role === "user" ? "You" : "LIYA";
 
-      for (let i = 0; i < 3; i++) {
-        dots.appendChild(document.createElement("span"));
-      }
+  const textNode = document.createElement("div");
+  textNode.textContent = text;
 
-      content.appendChild(dots);
-      div.append(label, content);
-      messagesEl.appendChild(div);
-      scrollToBottom();
+  body.append(who, textNode);
 
-      return div;
-    }
+  if (role === "assistant" && !isError) {
+    const actions = document.createElement("div");
+    actions.className = "message-actions";
 
-    function setSending(value) {
-      isSending = value;
-      sendBtn.disabled = value;
-      input.disabled = value;
-      sendBtn.textContent = value ? "…" : "➤";
-      connectionEl.textContent = value ? "Thinking…" : "AI Assistant";
-    }
+    const speak = document.createElement("button");
+    speak.type = "button";
+    speak.textContent = "🔊 Speak";
+    speak.addEventListener("click", () => speakText(text));
 
-    async function sendMessage(message) {
-      const text = message.trim();
-
-      if (!text || isSending) return;
-
-      welcomeEl.style.display = "none";
-      addMessage(text, "user");
-
-      input.value = "";
-      input.style.height = "auto";
-      setSending(true);
-
-      const loading = addTypingIndicator();
-      requestController = new AbortController();
-
-      const timeoutId = setTimeout(() => {
-        requestController.abort();
-      }, 60000);
-
+    const copy = document.createElement("button");
+    copy.type = "button";
+    copy.textContent = "Copy";
+    copy.addEventListener("click", async () => {
       try {
-        const response = await fetch(API_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ message: text }),
-          signal: requestController.signal
-        });
+        await navigator.clipboard.writeText(text);
+        setStatus("উত্তর কপি হয়েছে।");
+      } catch {
+        setStatus("কপি করা যায়নি। উত্তরটি ম্যানুয়ালি সিলেক্ট করো।");
+      }
+    });
 
-        let data;
+    actions.append(speak, copy);
+    body.append(actions);
+  }
 
-        try {
-          data = await response.json();
-        } catch {
-          throw new Error("সার্ভার থেকে সঠিক উত্তর পাওয়া যায়নি।");
-        }
+  row.append(avatar, body);
+  chat.append(row);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
 
-        if (!response.ok) {
-          throw new Error(
-            typeof data.error === "string"
-              ? data.error
-              : `Server error (${response.status})`
-          );
-        }
+  return row;
+}
 
-        if (typeof data.reply !== "string" || !data.reply.trim()) {
-          throw new Error("AI কোনো উত্তর দেয়নি। আবার চেষ্টা করো।");
-        }
+function getVoiceLanguage(text) {
+  const selected = replyLanguage.value;
+  if (selected !== "auto") return selected;
 
-        loading.remove();
-        addMessage(data.reply.trim(), "bot");
-      } catch (error) {
-        loading.remove();
+  if (/[\u0980-\u09FF]/.test(text)) return "bn-BD";
+  if (/[\u0900-\u097F]/.test(text)) return "hi-IN";
+  return "en-US";
+}
 
-        let errorMessage;
+function loadVoices() {
+  if (!("speechSynthesis" in window)) return;
 
-        if (error.name === "AbortError") {
-          errorMessage =
-            "উত্তর পেতে বেশি সময় লাগছে। ইন্টারনেট পরীক্ষা করে আবার চেষ্টা করো।";
-        } else if (error instanceof TypeError) {
-          errorMessage =
-            "LIYA-এর সার্ভারে সংযোগ করা যাচ্ছে না। ইন্টারনেট, Worker URL ও CORS সেটিংস পরীক্ষা করো।";
-        } else {
-          errorMessage =
-            "দুঃখিত, এই অনুরোধটি সম্পন্ন হয়নি। " +
-            (error.message || "আবার চেষ্টা করো।");
-        }
+  availableVoices = speechSynthesis.getVoices();
+  const previous = voiceSelect.value;
 
-        addMessage(errorMessage, "bot", "error");
-        console.error("LIYA request failed:", error);
-      } finally {
-        clearTimeout(timeoutId);
-        requestController = null;
-        setSending(false);
-        input.focus();
-        scrollToBottom();
+  voiceSelect.replaceChildren();
+
+  const defaultOption = document.createElement("option");
+  defaultOption.value = "";
+  defaultOption.textContent = "Browser default voice";
+  voiceSelect.append(defaultOption);
+
+  availableVoices.forEach((voice, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent =
+      voice.name + " (" + voice.lang + ")" +
+      (voice.default ? " — default" : "");
+    voiceSelect.append(option);
+  });
+
+  if ([...voiceSelect.options].some(option => option.value === previous)) {
+    voiceSelect.value = previous;
+  }
+}
+
+if ("speechSynthesis" in window) {
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+} else {
+  voiceReply.checked = false;
+  voiceReply.disabled = true;
+  setStatus("এই ব্রাউজারে speech synthesis সমর্থিত নয়।");
+}
+
+function speakText(text) {
+  if (!("speechSynthesis" in window)) {
+    setStatus("এই ব্রাউজারে voice reply সমর্থিত নয়।");
+    return;
+  }
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = getVoiceLanguage(text);
+  utterance.rate = 1;
+  utterance.pitch = 1;
+
+  const selectedIndex = voiceSelect.value;
+  if (selectedIndex !== "" && availableVoices[Number(selectedIndex)]) {
+    utterance.voice = availableVoices[Number(selectedIndex)];
+  } else {
+    const prefix = utterance.lang.toLowerCase().split("-")[0];
+    const matchingVoice = availableVoices.find(voice =>
+      voice.lang.toLowerCase().startsWith(prefix)
+    );
+    if (matchingVoice) utterance.voice = matchingVoice;
+  }
+
+  utterance.onstart = () => setStatus("LIYA কথা বলছে...");
+  utterance.onend = () => setStatus("Ready.");
+  utterance.onerror = () => setStatus("ভয়েস চালানো যায়নি। অন্য voice নির্বাচন করো।");
+
+  speechSynthesis.speak(utterance);
+}
+
+function stopListening() {
+  if (recognition && listening) {
+    try { recognition.stop(); } catch {}
+  }
+}
+
+function startListening() {
+  const SpeechRecognition =
+    window.SpeechRecognition || window.webkitSpeechRecognition;
+
+  if (!SpeechRecognition) {
+    setStatus("এই ব্রাউজারে speech recognition নেই। আপডেটেড Chrome ব্যবহার করে দেখো।");
+    return;
+  }
+
+  if (listening) {
+    stopListening();
+    return;
+  }
+
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+
+  recognition = new SpeechRecognition();
+  recognition.lang = inputLanguage.value;
+  recognition.continuous = false;
+  recognition.interimResults = true;
+  recognition.maxAlternatives = 1;
+
+  let finalTranscript = "";
+
+  recognition.onstart = () => {
+    listening = true;
+    micButton.classList.add("listening");
+    micButton.textContent = "⏹";
+    setStatus("শুনছি... এখন কথা বলো।");
+  };
+
+  recognition.onresult = event => {
+    let interim = "";
+    finalTranscript = "";
+
+    for (let i = 0; i < event.results.length; i++) {
+      const transcript = event.results[i][0].transcript;
+      if (event.results[i].isFinal) {
+        finalTranscript += transcript;
+      } else {
+        interim += transcript;
       }
     }
 
-    form.addEventListener("submit", event => {
-      event.preventDefault();
-      sendMessage(input.value);
-    });
+    input.value = finalTranscript || interim;
+    input.style.height = "auto";
+    input.style.height = Math.min(input.scrollHeight, 150) + "px";
+  };
 
-    input.addEventListener("input", () => {
-      input.style.height = "auto";
-      input.style.height =
-        Math.min(input.scrollHeight, 150) + "px";
-    });
+  recognition.onerror = event => {
+    const messages = {
+      "not-allowed": "মাইক্রোফোনের অনুমতি দাও।",
+      "no-speech": "কোনো কথা শোনা যায়নি। আবার চেষ্টা করো।",
+      "audio-capture": "মাইক্রোফোন পাওয়া যায়নি।",
+      "network": "Speech recognition-এর জন্য নেটওয়ার্ক সমস্যা হয়েছে."
+    };
+    setStatus(messages[event.error] || ("Voice error: " + event.error));
+  };
 
-    input.addEventListener("keydown", event => {
-      if (event.key === "Enter" && !event.shiftKey) {
-        event.preventDefault();
+  recognition.onend = () => {
+    listening = false;
+    micButton.classList.remove("listening");
+    micButton.textContent = "🎙️";
 
-        if (!isSending) {
-          form.requestSubmit();
-        }
-      }
-    });
-
-    document.querySelectorAll("[data-prompt]").forEach(button => {
-      button.addEventListener("click", () => {
-        if (isSending) return;
-
-        input.value = button.dataset.prompt;
-        input.focus();
-        form.requestSubmit();
-      });
-    });
-
-    clearBtn.addEventListener("click", () => {
-      if (isSending) {
-        if (requestController) {
-          requestController.abort();
-        }
-        return;
-      }
-
-      messagesEl.replaceChildren();
-      messagesEl.appendChild(welcomeEl);
-      welcomeEl.style.display = "";
-      input.value = "";
-      input.style.height = "auto";
-      input.focus();
-    });
-
-    // Register the Service Worker for GitHub Pages.
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/LIYA/sw.js")
-          .catch(error => {
-            console.error("Service Worker registration failed:", error);
-          });
-      });
+    const spokenText = input.value.trim();
+    if (spokenText) {
+      setStatus("তোমার কথা পাওয়া গেছে। উত্তর তৈরি হচ্ছে...");
+      form.requestSubmit();
+    } else {
+      setStatus("Ready. আবার কথা বলতে মাইক্রোফোন চাপো।");
     }
-  </script>
+  };
+
+  try {
+    recognition.start();
+  } catch {
+    setStatus("মাইক্রোফোন চালু করা যায়নি। একটু পরে আবার চেষ্টা করো।");
+  }
+}
+
+async function sendMessage(text) {
+  const cleanText = text.trim();
+  if (!cleanText) return;
+
+  stopListening();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+
+  addMessage("user", cleanText);
+  input.value = "";
+  input.style.height = "auto";
+  sendButton.disabled = true;
+  micButton.disabled = true;
+  currentController = new AbortController();
+
+  const timeout = setTimeout(() => {
+    currentController?.abort();
+  }, 60000);
+
+  setStatus("LIYA উত্তর তৈরি করছে...");
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: cleanText }),
+      signal: currentController.signal
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || ("HTTP error " + response.status));
+    }
+
+    if (typeof data.reply !== "string" || !data.reply.trim()) {
+      throw new Error("AI কোনো উত্তর দেয়নি।");
+    }
+
+    addMessage("assistant", data.reply);
+
+    if (voiceReply.checked) speakText(data.reply);
+    else setStatus("উত্তর প্রস্তুত।");
+
+  } catch (error) {
+    const message = error.name === "AbortError"
+      ? "অনুরোধের সময় শেষ হয়েছে বা বাতিল হয়েছে। আবার চেষ্টা করো।"
+      : error.message || "সংযোগে সমস্যা হয়েছে।";
+
+    addMessage("assistant", message, true);
+    setStatus("উত্তর পাওয়া যায়নি। ইন্টারনেট ও Worker পরীক্ষা করো।");
+    console.error("LIYA request error:", error);
+
+  } finally {
+    clearTimeout(timeout);
+    currentController = null;
+    sendButton.disabled = false;
+    micButton.disabled = false;
+    input.focus();
+  }
+}
+
+form.addEventListener("submit", event => {
+  event.preventDefault();
+  sendMessage(input.value);
+});
+
+micButton.addEventListener("click", startListening);
+
+stopVoiceButton.addEventListener("click", () => {
+  stopListening();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  setStatus("Voice বন্ধ করা হয়েছে।");
+});
+
+newChatButton.addEventListener("click", () => {
+  stopListening();
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  if (currentController) currentController.abort();
+
+  chat.replaceChildren();
+  chat.append(welcome);
+  welcome.hidden = false;
+  input.value = "";
+  input.focus();
+  setStatus("নতুন চ্যাট শুরু হয়েছে।");
+});
+
+document.querySelectorAll("[data-prompt]").forEach(button => {
+  button.addEventListener("click", () => {
+    sendMessage(button.dataset.prompt);
+  });
+});
+
+input.addEventListener("input", () => {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 150) + "px";
+});
+
+input.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    form.requestSubmit();
+  }
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/LIYA/sw.js")
+      .catch(error => console.error("Service Worker error:", error));
+  });
+}
+</script>
 </body>
 </html>
