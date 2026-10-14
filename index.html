@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#11111b">
+  <title>LIYA AI — Your Personal Assistant</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, "Noto Sans Bengali", sans-serif;
+      background: #11111b;
+      color: #f5f3ff;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 850px;
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      background: #171724;
+    }
+
+    header {
+      padding: 18px 22px;
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      border-bottom: 1px solid #303044;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      display: grid;
+      place-items: center;
+      border-radius: 15px;
+      font-size: 25px;
+      background: linear-gradient(135deg, #a78bfa, #ec4899);
+    }
+
+    h1 { margin: 0; font-size: 22px; }
+    .subtitle { margin-top: 5px; color: #aaa8c1; font-size: 13px; }
+
+    .status {
+      margin-left: auto;
+      color: #86efac;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .welcome {
+      margin: auto;
+      text-align: center;
+      max-width: 440px;
+      padding: 24px 10px;
+    }
+
+    .welcome .big { font-size: 54px; }
+    .welcome h2 { font-size: 27px; margin: 15px 0 8px; }
+    .welcome p { color: #aaa8c1; line-height: 1.7; }
+
+    .msg {
+      max-width: 85%;
+      padding: 13px 16px;
+      border-radius: 17px;
+      line-height: 1.75;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .user {
+      align-self: flex-end;
+      background: #7055d9;
+      border-bottom-right-radius: 5px;
+    }
+
+    .bot {
+      align-self: flex-start;
+      background: #262638;
+      border: 1px solid #38384d;
+      border-bottom-left-radius: 5px;
+    }
+
+    .error { color: #fecaca; }
+
+    .composer {
+      padding: 14px 16px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid #303044;
+      background: #171724;
+    }
+
+    .input-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 18px;
+      background: #222233;
+      border: 1px solid #39394f;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: 0;
+      outline: none;
+      color: white;
+      background: transparent;
+      padding: 10px;
+      font: inherit;
+      max-height: 150px;
+      min-height: 42px;
+    }
+
+    textarea::placeholder { color: #9291aa; }
+
+    button {
+      border: 0;
+      border-radius: 13px;
+      width: 44px;
+      height: 44px;
+      flex-shrink: 0;
+      background: #8b5cf6;
+      color: white;
+      font-size: 21px;
+      cursor: pointer;
+    }
+
+    button:disabled { opacity: .5; cursor: wait; }
+
+    .hint {
+      text-align: center;
+      color: #77768e;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 500px) {
+      header { padding: 14px; }
+      #messages { padding: 18px 12px; }
+      .msg { max-width: 92%; }
+      .status { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="logo">💜</div>
+      <div>
+        <h1>LIYA AI</h1>
+        <div class="subtitle">Your personal AI assistant</div>
+      </div>
+      <div class="status">● AI Connected</div>
+    </header>
+
+    <section id="messages" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <div class="big">✨</div>
+        <h2>হ্যালো! আমি LIYA</h2>
+        <p>আমি তোমার AI assistant। আমাকে বাংলায় বা ইংরেজিতে যেকোনো প্রশ্ন করতে পারো।</p>
+      </div>
+    </section>
+
+    <form class="composer" id="chatForm">
+      <div class="input-row">
+        <textarea id="input" rows="1"
+          placeholder="LIYA-কে কিছু জিজ্ঞেস করো..."
+          aria-label="তোমার মেসেজ লিখো"></textarea>
+        <button id="sendBtn" type="submit" aria-label="Send">➤</button>
+      </div>
+      <div class="hint">Enter = Send · Shift + Enter = New line</div>
+    </form>
+  </main>
+
+  <script>
+    const API_URL = "https://liya-ai.thismohammed27.workers.dev/";
+
+    const messages = document.getElementById("messages");
+    const welcome = document.getElementById("welcome");
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("input");
+    const sendBtn = document.getElementById("sendBtn");
+
+    function addMessage(text, role, extraClass = "") {
+      const div = document.createElement("div");
+      div.className = `msg ${role} ${extraClass}`.trim();
+      div.textContent = text;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text || sendBtn.disabled) return;
+
+      welcome.style.display = "none";
+      addMessage(text, "user");
+
+      input.value = "";
+      input.style.height = "auto";
+      sendBtn.disabled = true;
+
+      const loading = addMessage("LIYA ভাবছে... 💭", "bot");
+
+      try {
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || `Server error: ${response.status}`);
+        }
+
+        if (typeof data.reply !== "string" || !data.reply.trim()) {
+          throw new Error("AI কোনো উত্তর দেয়নি। আবার চেষ্টা করো।");
+        }
+
+        loading.textContent = data.reply;
+      } catch (error) {
+        console.error("LIYA error:", error);
+        loading.classList.add("error");
+        loading.textContent =
+          "দুঃখিত, LIYA-এর সঙ্গে সংযোগ করা যায়নি। ইন্টারনেট ও Cloudflare Worker পরীক্ষা করে আবার চেষ্টা করো।";
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+        messages.scrollTop = messages.scrollHeight;
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      sendMessage();
+    });
+
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = Math.min(input.scrollHeight, 150) + "px";
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+  </script>
+</body>
+</html>
