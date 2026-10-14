@@ -2,7 +2,7 @@
 "use strict";
 
 const CACHE_PREFIX = "liya-cache-";
-const CACHE_VERSION = "v1";
+const CACHE_VERSION = "v2";
 const CACHE_NAME = `${CACHE_PREFIX}${CACHE_VERSION}`;
 
 const BASE_PATH = "/LIYA/";
