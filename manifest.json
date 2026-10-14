@@ -1,9 +1,32 @@
+
 {
-  "name": "LIYA — Personal AI Assistant",
-  "short_name": "LIYA",
-  "start_url": "./",
+  "id": "/LIYA/",
+  "name": "LIYA AI - Your Personal AI Assistant",
+  "short_name": "LIYA AI",
+  "description": "Your personal AI assistant for Bengali and English conversations.",
+  "lang": "bn",
+  "start_url": "/LIYA/",
+  "scope": "/LIYA/",
   "display": "standalone",
-  "background_color": "#0b1120",
-  "theme_color": "#101827",
-  "description": "A bilingual personal assistant prototype."
+  "orientation": "portrait",
+  "background_color": "#11111b",
+  "theme_color": "#171724",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "/LIYA/icons/liya-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/LIYA/icons/liya-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
 }
