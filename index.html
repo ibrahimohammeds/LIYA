@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101827">
+<meta name="description" content="LIYA — your personal AI assistant prototype">
+<link rel="manifest" href="manifest.json">
+<title>LIYA — Personal AI Assistant</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1120;--panel:#111b2e;--panel2:#1b2940;--text:#f8fafc;--muted:#a8b4c8;--accent:#8b5cf6;--accent2:#6d5ae6;--border:#26364f}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#18213c 0%,var(--bg) 55%);color:var(--text);font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;min-height:100vh}
+.app{max-width:760px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;padding:env(safe-area-inset-top) 16px env(safe-area-inset-bottom)}
+header{display:flex;align-items:center;gap:12px;padding:18px 0;border-bottom:1px solid var(--border)}
+.logo{width:46px;height:46px;border-radius:16px;background:linear-gradient(135deg,#a78bfa,#6d5ae6);display:grid;place-items:center;font-size:24px;font-weight:800;box-shadow:0 8px 24px #6d5ae644}
+h1{font-size:21px;margin:0;letter-spacing:.5px} .subtitle{font-size:12px;color:#c4b5fd;margin-top:3px}
+.pill{margin-left:auto;border:1px solid #3c4a63;background:#18243a;color:#d6ddeb;padding:7px 10px;border-radius:999px;font-size:11px}
+main{flex:1;display:flex;flex-direction:column;padding:22px 0 14px;gap:16px}
+.welcome{text-align:center;padding:26px 12px 12px}.orb{width:76px;height:76px;border-radius:28px;background:#251c4b;border:1px solid #5941a8;margin:0 auto 15px;display:grid;place-items:center;font-size:34px}
+.welcome h2{margin:0 0 8px;font-size:24px}.welcome p{margin:0;color:var(--muted);line-height:1.5;font-size:14px}
+.quick{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}.quick button{background:#17243a;color:#dce5f4;border:1px solid #34435d;border-radius:999px;padding:9px 12px;font-size:12px}
+.messages{display:flex;flex-direction:column;gap:12px}.msg{max-width:88%;padding:12px 14px;border-radius:18px;line-height:1.5;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}.user{align-self:flex-end;background:linear-gradient(135deg,#8067ef,#644bd2);border-bottom-right-radius:6px}.bot{align-self:flex-start;background:var(--panel2);border:1px solid #2d3b54;border-bottom-left-radius:6px}.label{display:block;font-size:10px;color:#c4b5fd;margin-bottom:4px;font-weight:700;letter-spacing:.3px}
+.composer{position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,var(--bg) 22%)}
+form{display:flex;gap:8px;align-items:flex-end;background:#111b2e;border:1px solid #35445e;border-radius:22px;padding:8px;box-shadow:0 12px 35px #0003}
+textarea{flex:1;resize:none;max-height:130px;min-height:42px;background:transparent;color:var(--text);border:0;outline:0;padding:11px 8px;font:inherit;font-size:14px}textarea::placeholder{color:#8b99af}
+.send{width:44px;height:44px;border:0;border-radius:16px;background:var(--accent);color:white;font-size:20px;cursor:pointer}.send:active{transform:scale(.96)}
+.note{text-align:center;color:#8290a6;font-size:10px;line-height:1.5;margin:9px 8px 0}
+button{cursor:pointer}button:focus-visible,textarea:focus-visible{outline:2px solid #c4b5fd;outline-offset:3px}
+@media(min-width:600px){.app{padding-left:24px;padding-right:24px}.welcome{padding-top:40px}.msg{font-size:15px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo" aria-hidden="true">✦</div>
+  <div><h1>LIYA</h1><div class="subtitle">Your Personal AI Assistant</div></div>
+  <div class="pill">DEMO MODE</div>
+</header>
+<main>
+  <section class="welcome" id="welcome">
+    <div class="orb">✧</div>
+    <h2>Hello! I'm LIYA.</h2>
+    <p>তোমাকে কীভাবে সাহায্য করতে পারি?<br>How can I help you today?</p>
+    <div class="quick">
+      <button type="button" data-prompt="আজকের জন্য একটি সহজ পরিকল্পনা তৈরি করো।">📅 Daily plan</button>
+      <button type="button" data-prompt="আমাকে ইংরেজি শেখার কিছু টিপস দাও।">📚 Learn English</button>
+      <button type="button" data-prompt="Give me three ideas to stay productive.">✨ Productivity</button>
+    </div>
+  </section>
+  <section class="messages" id="messages" aria-live="polite"></section>
+</main>
+<div class="composer">
+  <form id="chatForm">
+    <textarea id="messageInput" rows="1" placeholder="Message LIYA... / এখানে লিখো" aria-label="Message LIYA"></textarea>
+    <button class="send" aria-label="Send message" type="submit">↑</button>
+  </form>
+  <p class="note">Prototype only: replies are sample responses, not live AI. Do not enter private or sensitive information.</p>
+</div>
+</div>
+<script>
+const form=document.getElementById('chatForm'), input=document.getElementById('messageInput'), messages=document.getElementById('messages'), welcome=document.getElementById('welcome');
+function replyFor(text){
+  const t=text.toLowerCase();
+  if(/hello|hi\b|hey|হ্যালো|হাই|আসসালামু/.test(t)) return "Hello! আমি LIYA 😊\nতুমি বাংলায় বা ইংরেজিতে প্রশ্ন করতে পারো। এখন এটি demo version, তাই উত্তরগুলো নমুনা।";
+  if(/plan|পরিকল্পনা|রুটিন|আজকের/.test(t)) return "চলো একটি সহজ পরিকল্পনা করি:\n১. আজকের সবচেয়ে গুরুত্বপূর্ণ ৩টি কাজ লিখে নাও।\n২. প্রথম কাজটি ২৫ মিনিট মনোযোগ দিয়ে করো।\n৩. ৫ মিনিট বিরতি নাও।\n৪. দিনের শেষে কী শেষ হয়েছে দেখে নাও।\n\nতোমার আসল কাজগুলো জানালে পরিকল্পনাটি সাজিয়ে নিতে পারবে—পূর্ণ AI সংযোগ এখনো করা হয়নি।";
+  if(/english|ইংরেজি/.test(t)) return "ইংরেজি শেখার ছোট পরিকল্পনা:\n• প্রতিদিন ৫টি নতুন শব্দ শেখো।\n• ৫ মিনিট জোরে জোরে ইংরেজি বলার অনুশীলন করো।\n• ছোট একটি অনুচ্ছেদ পড়ো এবং নিজের ভাষায় বলো।\n\nএটি একটি নমুনা উত্তর; পরে লাইভ AI যোগ করা যাবে।";
+  if(/productive|productivity|কাজ|সময়/.test(t)) return "তিনটি productivity tip:\n১. একসঙ্গে একটি কাজ করো।\n২. বড় কাজকে ছোট ধাপে ভাগ করো।\n৩. কাজের সময় নোটিফিকেশন বন্ধ রাখো।\n\nএখন LIYA demo mode-এ চলছে।";
+  return "তোমার মেসেজ পেয়েছি! 💜\n\nএখন LIYA-এর এই প্রোটোটাইপে নির্দিষ্ট কিছু নমুনা উত্তর আছে; এটি এখনো লাইভ AI-এর সঙ্গে যুক্ত নয়। বাস্তব AI উত্তর পেতে পরে একটি নিরাপদ backend/API সংযোগ করতে হবে।\n\nতোমার লেখা: “"+text+"”";
+}
+function addMessage(text,who){
+ const el=document.createElement('div'); el.className='msg '+who;
+ if(who==='bot'){const lab=document.createElement('span');lab.className='label';lab.textContent='LIYA';el.appendChild(lab)}
+ el.appendChild(document.createTextNode(text));messages.appendChild(el);
+}
+function send(text){text=text.trim();if(!text)return;welcome.style.display='none';addMessage(text,'user');input.value='';input.style.height='auto';setTimeout(()=>{addMessage(replyFor(text),'bot');window.scrollTo({top:document.body.scrollHeight,behavior:'smooth'});},250);}
+form.addEventListener('submit',e=>{e.preventDefault();send(input.value)});
+input.addEventListener('input',()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,130)+'px'});
+document.querySelectorAll('[data-prompt]').forEach(b=>b.addEventListener('click',()=>send(b.dataset.prompt)));
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>

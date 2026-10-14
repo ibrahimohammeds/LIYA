@@ -1,0 +1,9 @@
+{
+  "name": "LIYA — Personal AI Assistant",
+  "short_name": "LIYA",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#101827",
+  "description": "A bilingual personal assistant prototype."
+}
