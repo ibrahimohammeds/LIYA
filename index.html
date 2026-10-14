@@ -456,7 +456,104 @@ function addMessage(role, text, isError = false) {
     const speak = document.createElement("button");
     speak.type = "button";
     speak.textContent = "🔊 Speak";
-    speak.addEventListener("click", () => speakText(text));
+    speak.addEventListener("click", () => speakText(
+const liyaVoiceSelect = document.getElementById("voiceSelect");
+
+function loadLiyaVoices() {
+  if (!liyaVoiceSelect || !("speechSynthesis" in window)) return;
+
+  const voices = speechSynthesis.getVoices();
+  if (!voices.length) return;
+
+  const previous = liyaVoiceSelect.value;
+  liyaVoiceSelect.replaceChildren();
+
+  const autoOption = document.createElement("option");
+  autoOption.value = "";
+  autoOption.textContent = "Auto — বাংলা কণ্ঠ";
+  liyaVoiceSelect.appendChild(autoOption);
+
+  voices.forEach((voice, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `${voice.name} (${voice.lang})`;
+    liyaVoiceSelect.appendChild(option);
+  });
+
+  const saved = localStorage.getItem("liyaVoiceName");
+  let selectedIndex = voices.findIndex(v => v.name === saved);
+
+  // Prefer a Bengali voice with a female-associated name.
+  if (selectedIndex < 0) {
+    selectedIndex = voices.findIndex(v =>
+      /^bn([-_]|$)/i.test(v.lang) &&
+      /female|woman|zira|heera|samantha/i.test(v.name)
+    );
+  }
+
+  // Otherwise prefer any available Bengali voice.
+  if (selectedIndex < 0) {
+    selectedIndex = voices.findIndex(v =>
+      /^bn([-_]|$)/i.test(v.lang) ||
+      /bengali|bangla/i.test(v.name)
+    );
+  }
+
+  if (previous !== "" && voices[Number(previous)]) {
+    liyaVoiceSelect.value = previous;
+  } else if (saved && selectedIndex >= 0) {
+    liyaVoiceSelect.value = String(selectedIndex);
+  } else if (selectedIndex >= 0) {
+    liyaVoiceSelect.value = String(selectedIndex);
+  }
+}
+
+if ("speechSynthesis" in window) {
+  loadLiyaVoices();
+  speechSynthesis.addEventListener("voiceschanged", loadLiyaVoices);
+}
+
+if (liyaVoiceSelect) {
+  liyaVoiceSelect.addEventListener("change", () => {
+    const voices = speechSynthesis.getVoices();
+    const voice = voices[Number(liyaVoiceSelect.value)];
+
+    if (liyaVoiceSelect.value !== "" && voice) {
+      localStorage.setItem("liyaVoiceName", voice.name);
+    } else {
+      localStorage.removeItem("liyaVoiceName");
+    }
+  });
+}
+
+function speakText(text) {
+  if (!("speechSynthesis" in window) || !text) return;
+
+  speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  const voices = speechSynthesis.getVoices();
+  const selected = liyaVoiceSelect?.value;
+
+  if (selected !== undefined && selected !== "") {
+    const voice = voices[Number(selected)];
+    if (voice) utterance.voice = voice;
+  } else {
+    const bengaliVoice = voices.find(v =>
+      /^bn([-_]|$)/i.test(v.lang) ||
+      /bengali|bangla/i.test(v.name)
+    );
+
+    if (bengaliVoice) utterance.voice = bengaliVoice;
+  }
+
+  utterance.lang = utterance.voice?.lang || "bn-BD";
+  utterance.rate = 0.92;
+  utterance.pitch = 1.08;
+
+  speechSynthesis.speak(utterance);
+}
+));
 
     const copy = document.createElement("button");
     copy.type = "button";
